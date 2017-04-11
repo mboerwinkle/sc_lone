@@ -1,0 +1,23 @@
+general client
+3	-texting
+4	-building display
+5 	-color
+7	-mineral display
+9map select server mode(through texting?)
+server
+10	-minerals
+11	-third type that no one has in the middle? almost worth it to send workers in?
+	-buildings
+buildings
+12	-building
+13	-selection
+14github
+units
+15	-rotation data
+unit AI
+18	attack unit general AI
+19	passive unit general AI
+20	pathfinding :((((
+	
+21autonomous ai
+	400 input points??? good shit
