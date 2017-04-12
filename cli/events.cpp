@@ -50,6 +50,11 @@ void* eventListen(void *null){
 			getmouse(&mrelease);
 			sendEvent(1, (locx+mpress.x)+(locy+mpress.y)*mx, (locx+mrelease.x)+(locy+mrelease.y)*mx);
 		}
+		if(ch == 'a'){//attackmove
+			while(getch() != KEY_MOUSE){}
+			getmouse(&mpress);
+			sendEvent(2, (locx+mpress.x)+(locy+mpress.y)*mx, 0);
+		}
 		if(ch == KEY_MOUSE){
 			getmouse(&mpress);
 			int arg = (locx+mpress.x)+(locy+mpress.y)*mx;

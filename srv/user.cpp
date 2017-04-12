@@ -28,16 +28,14 @@ void User::clearSelection(){
 	selectionCount = 0;
 }
 void User::selectUnit(int idx){
-	if(selectionCount > 900) puts("warning 1212");//FIXME descriptive
+	if(selectionCount > 900) puts("nearing selection limit");
 	unitList[idx]->userSelect[listIdx] = 1;
 	unitList[idx]->userSelIdx[listIdx] = selectionCount;
 	selection[selectionCount] = unitList[idx];
 	selectionCount++;
 }
 void User::killSelectedUnits(){
-	printf("selected: %d\n", selectionCount);
 	while(selectionCount != 0){
-		puts("delete");
 		delete selection[0];
 	}
 }
@@ -60,13 +58,14 @@ void User::sendUserData(){
 	*viewUnitCount = 0;
 	for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){
 		Unit* targ = unitList[unitIdx];
-		if(canSee(targ->loc)){
+		if(canSeeUnit(targ)){
 			(*viewUnitCount)++;
 			*(data+datalen) = targ->type;datalen++;
 			*(data+datalen) = targ->team;datalen++;
 			*(int*)(data+datalen) = targ->loc;datalen+=sizeof(int);
 			*(data+datalen) = targ->userSelect[listIdx];datalen++;
 			*(data+datalen) = targ->status;datalen++;
+			*(data+datalen) = targ->size;datalen++;
 		}
 	}
 	strcpy(data+datalen, "END"); datalen+=3;
@@ -100,10 +99,11 @@ void User::select(int c1, int c2){//FIXME third argument for clearing selection 
 	int x2 = c2%mx;
 	int y2 = c2/mx;
 	for(int idx = 0; idx < unitCount; idx++){
-		int tloc = unitList[idx]->loc;
+		Unit* test = unitList[idx];
+		int tloc = test->loc;
 		int tx = tloc%mx;//FIXME dont remake int?
 		int ty = tloc/mx;//FIXME change all occurences to a macro? function?
-		if(((x1 <= tx && x2 >= tx) || (x1 >= tx && x2 <= tx)) && ((y1 <= ty && y2 >= ty) || (y1 >= ty && y2 <= ty))){
+		if(((x1 < tx+test->size && x2 >= tx) || (x1 >= tx && x2 < tx+test->size)) && ((y1 < ty+test->size && y2 >= ty) || (y1 >= ty && y2 < ty+test->size))){
 			selectUnit(idx);
 		}
 	}
@@ -118,4 +118,22 @@ int User::canSee(int tloc){
 		return 1;
 	}
 	return 0;
+}
+int User::canSeeUnit(Unit* test){
+	int myX, myY;
+	getCamCoord(&myX, &myY);
+	int x = test->loc%mx;
+	int y = test->loc/mx;
+	if(x+test->size > myX && x < myX+vx && y+test->size > myY && y < myY+vy){
+		return 1;
+	}
+	return 0;
+	
+}
+void User::selAttackLoc(int tloc){
+	for(int uIdx = 0; uIdx < selectionCount; uIdx++){
+		//FIXME if owned by me.
+		selection[uIdx]->dest = tloc;
+		selection[uIdx]->attack = 1;
+	}
 }

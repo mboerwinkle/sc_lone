@@ -17,6 +17,9 @@ void netParse(int userIdx, char* msg){
 		if(type == 2){//kill all selected units
 			userList[userIdx]->killSelectedUnits();
 		}
+		if(type == 3){//attackMove
+			userList[userIdx]->selAttackLoc(dat);
+		}
 	}else if(!strcmp(prefix, "TXT")){
 		printf("User%d: %s\n", userIdx, msg+3);
 		int len = strlen(msg)+1;

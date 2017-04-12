@@ -16,7 +16,17 @@ int main(){
 	new Unit('Z', 2, 5*mx+7, 0);
 	while(1){
 		delay(FRAMERATE);
-		//calculatenewstate
+		//calculate new state
+		//FIXME only decrement top unit
+		for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){
+			Unit* targ = unitList[unitIdx];
+			if(targ->actTimer <= 0){
+				targ->actTimer = targ->actCooldown;
+				targ->act();
+			}else{
+				targ->actTimer--;
+			}
+		}
 		//sendusersdata
 		for(int userIdx = 0; userIdx < userCount; userIdx++){
 			userList[userIdx]->sendUserData();

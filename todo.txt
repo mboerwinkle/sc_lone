@@ -3,15 +3,16 @@ general client
 4	-building display
 5 	-color
 7	-mineral display
+	-mini map
 9map select server mode(through texting?)
 server
+	-account for size in cansee func
 10	-minerals
 11	-third type that no one has in the middle? almost worth it to send workers in?
 	-buildings
 buildings
 12	-building
 13	-selection
-14github
 units
 15	-rotation data
 unit AI
@@ -20,4 +21,6 @@ unit AI
 20	pathfinding :((((
 	
 21autonomous ai
+	2 inputs for location
+	400 memory bits
 	400 input points??? good shit

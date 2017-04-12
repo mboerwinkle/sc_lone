@@ -33,7 +33,12 @@ void displayMap(char* data){
 		int ulocy = uloc/mx-locy;
 		char usel = *(data+pos);pos++;
 		char ustat = *(data+pos);pos++;
-		mvaddch(ulocy, ulocx, utype|COLOR_PAIR(uteam)|(A_STANDOUT*usel)|(A_BOLD*ustat));
+		char usize = *(data+pos);pos++;
+		for(int dx = ulocx; dx < ulocx+usize; dx++){
+			for(int dy = ulocy; dy < ulocy+usize; dy++){
+				mvaddch(dy, dx, utype|COLOR_PAIR(uteam)|(A_STANDOUT*usel)|(A_BOLD*ustat));
+			}
+		}
 	}
 	mvprintw(0, 21, "Selected: %d", selectionCount);
 }

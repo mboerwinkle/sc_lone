@@ -12,7 +12,7 @@ extern int sockfd;
 extern void netParse(int userIdx, char* msg);
 extern void sendMessage(struct sockaddr_in *addr, char* data, int datalen);
 
-class User{
+class User{//FIXME put in user.h
 public:
 	User(unsigned long ip);
 	struct sockaddr_in addr;
@@ -31,7 +31,9 @@ public:
 	void clearSelection();
 	void killSelectedUnits();
 	void selectUnit(int idx);
+	void selAttackLoc(int tloc);
 	int canSee(int tloc);
+	int canSeeUnit(Unit* test);
 private:
 };
 extern User* userList[MAXUSERS];
