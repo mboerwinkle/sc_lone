@@ -10,6 +10,8 @@ Unit::Unit(char type, char team, int loc, char status){
 	this->type = type;
 	this->team = team;
 	this->loc = loc;
+	this->dest = loc;
+	
 	this->status = status;
 	if(unitCount == unitCapacity){
 		unitCapacity+=10;
@@ -20,6 +22,7 @@ Unit::Unit(char type, char team, int loc, char status){
 	listIdx = unitCount;
 	unitCount++;
 	memset(userSelect, 0, MAXUSERS);
+	act();
 }
 Unit::~Unit(){
 	for(int uIdx = 0; uIdx < MAXUSERS; uIdx++){
@@ -41,9 +44,9 @@ void Unit::act(){
 		}
 	}
 //move in best direction
-//	if(loc != dest){//we change dest to loc once we arrive close enough
-//		move(pathFindDir());
-//	}
+	if(loc != dest){//we change dest to loc once we arrive close enough
+		move(pathFindDir());
+	}
 //re-add yourself to blocking map
 	x = loc%mx;
 	y = loc/mx;
@@ -57,6 +60,60 @@ void Unit::act(){
 //change dest if seeing enemy.
 //attacTimer decrement.
 //status change
+}
+int Unit::pathFindDir(){
+	double bestFitness = distance(loc, dest);
+	int bestDir = -1;
+	for(int dir = 0; dir < 8; dir++){
+		double newFitness = dirFitness(dir);
+		if(newFitness < 0) continue;
+		if(newFitness < bestFitness){
+			bestFitness = newFitness;
+			bestDir = dir;
+		}
+	}
+	return bestDir;
+}
+double Unit::dirFitness(int dir){//lower is better.
+	int x = loc%mx;
+	int y = loc/mx;
+	if(dir > 0 && dir < 4){
+		x++;
+	}
+	if(dir > 4){
+		x--;
+	}
+	if(dir > 6 || dir < 2){
+		y--;
+	}
+	if(dir > 2 && dir < 6){
+		y++;
+	}
+	if(!validLoc(x+y*mx)){
+		return -1;
+	}
+	return distance(dest, x+y*mx);
+}
+void Unit::move(int dir){
+//701
+//6 2
+//543
+	if(dir == -1) return;
+	int x = loc%mx;
+	int y = loc/mx;
+	if(dir > 0 && dir < 4){
+		x++;
+	}
+	if(dir > 4){
+		x--;
+	}
+	if(dir > 6 || dir < 2){
+		y--;
+	}
+	if(dir > 2 && dir < 6){
+		y++;
+	}
+	loc = x+y*mx;
 }
 
 int Unit::validLoc(int l){
@@ -72,7 +129,7 @@ int Unit::validLoc(int l){
 	return 1;
 }
 
-int distance(int l1, int l2){
+double distance(int l1, int l2){
 	int x1 = l1%mx;
 	int y1 = l1/mx;
 	int dx = l2%mx-x1;

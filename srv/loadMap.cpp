@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 char* map = NULL;
 int mx, my;
 char* bMap = NULL;//ground unit forbidden aream map.

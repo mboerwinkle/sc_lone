@@ -7,9 +7,12 @@ public:
 	Unit(char type, char team, int loc, char status);
 	~Unit();
 	void act();
+	void move(int dir);
+	int pathFindDir();
 	int validLoc(int l);//bool return FIXME
+	double dirFitness(int dir);
 	int actTimer;
-	int actCooldown;
+	int actCooldown = 3;
 	char size = 3;//fixme store position as x and y for everything. only transmit loc
 	//int attackTimer;
 	//int attackCooldown;
@@ -17,7 +20,7 @@ public:
 //	int maxHp;
 //	int shield;
 //	int maxShield;
-	int visionDist;
+	int visionDist = 10;
 	int listIdx;
 	char type;
 	char team;
@@ -29,7 +32,7 @@ public:
 	char userSelect[MAXUSERS];
 	int userSelIdx[MAXUSERS];
 };
-extern int distance(int l1, int l2);
+extern double distance(int l1, int l2);
 extern int unitCount;
 extern Unit** unitList;
 extern int unitCapacity;

@@ -53,7 +53,7 @@ void* eventListen(void *null){
 		if(ch == 'a'){//attackmove
 			while(getch() != KEY_MOUSE){}
 			getmouse(&mpress);
-			sendEvent(2, (locx+mpress.x)+(locy+mpress.y)*mx, 0);
+			sendEvent(3, (locx+mpress.x)+(locy+mpress.y)*mx, 0);
 		}
 		if(ch == KEY_MOUSE){
 			getmouse(&mpress);
