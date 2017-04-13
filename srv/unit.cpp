@@ -25,6 +25,13 @@ Unit::Unit(char type, char team, int loc, char status){
 	act();
 }
 Unit::~Unit(){
+	int x = loc%mx;
+	int y = loc/mx;
+	for(int dx = x; dx < x+size; dx++){
+		for(int dy = y; dy < y+size; dy++){
+			bMap[dx+mx*dy] = 0;
+		}
+	}
 	for(int uIdx = 0; uIdx < MAXUSERS; uIdx++){
 		if(userSelect[uIdx]){
 			userList[uIdx]->removeSelection(userSelIdx[uIdx]);
