@@ -7,12 +7,13 @@ unsigned int teamVals[16] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 
 int unitCount = 0;
 int unitCapacity = 0;
 Unit** unitList = NULL;
-Unit::Unit(char type, int team, int loc, char status){
+Unit::Unit(char type, int team, int loc, char status, int ownerIdx){
 	this->type = type;
 	this->team = teamVals[team];
 	this->loc = loc;
 	this->dest = loc;
 	this->status = status;
+	this->ownerIdx = ownerIdx;
 	printf("team is %u\n", team);
 	this->attackMask = ~(this->team);
 	printf("attackMask is %u\n", attackMask);

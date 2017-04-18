@@ -5,7 +5,7 @@
 extern unsigned int teamVals[16];
 class Unit{
 public:
-	Unit(char type, int team, int loc, char status);
+	Unit(char type, int team, int loc, char status, int ownerIdx);
 	~Unit();
 	void act();
 	void blockLocation();
@@ -35,7 +35,7 @@ public:
 	unsigned int team;
 	unsigned int attackMask;
 	int loc;
-	User* owner;//use
+	int ownerIdx;
 	int dest;//FIXME be sure of proper init of all vars
 	char status;
 	char userSelect[MAXUSERS];

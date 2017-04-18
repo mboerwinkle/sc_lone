@@ -131,7 +131,10 @@ int User::canSeeUnit(Unit* test){
 	
 }
 void User::selAttackLoc(int tloc){
+	Unit* cond;
 	for(int uIdx = 0; uIdx < selectionCount; uIdx++){
+		cond = selection[uIdx];
+		if(cond->ownerIdx != listIdx) continue;
 		selection[uIdx]->dest = tloc;
 	}
 }

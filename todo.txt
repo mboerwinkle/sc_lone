@@ -9,32 +9,30 @@ general client
 
 
 	-pathfinding node gen on map--save units as connected to map nodes???
-	-make walls.
+	-make walls. 2
 	-variable height
-	-wall/height visibility rules
-	-make a maze-ish level.
+	-wall/height visibility rules 4
+	-make a maze-ish level. 3
 	-invisible units
 
-	-mining
+	-mining 9
 9map select server mode(through texting?)
 server
-	-save positions internally as int array.
 	-actually set up server notifications
-	-unit ownership
-	-unit config files
+	-unit ownership 1
+	-unit config files 2
 	-fix fixme's
 	-selection status at sidebar
-	-account for size in cansee func
-10	-minerals
+10	-minerals 7
+	-special behavior unit types 8
 11	-third type that no one has in the middle? almost worth it to send workers in?
-	-buildings
+	-buildings 5
 buildings
-12	-building
-13	-selection
+12	-building 10
+	-unit production 11
+13	-selection 6
 units
 15	-rotation data
-unit AI
-19	passive unit general AI
 	
 21autonomous ai
 	2 inputs for location
