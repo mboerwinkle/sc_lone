@@ -1,11 +1,29 @@
+
+
 general client
 3	-texting
 4	-building display
 5 	-color
 7	-mineral display
 	-mini map
+
+
+	-pathfinding node gen on map--save units as connected to map nodes???
+	-make walls.
+	-variable height
+	-wall/height visibility rules
+	-make a maze-ish level.
+	-invisible units
+
+	-mining
 9map select server mode(through texting?)
 server
+	-save positions internally as int array.
+	-actually set up server notifications
+	-unit ownership
+	-unit config files
+	-fix fixme's
+	-selection status at sidebar
 	-account for size in cansee func
 10	-minerals
 11	-third type that no one has in the middle? almost worth it to send workers in?
@@ -16,9 +34,7 @@ buildings
 units
 15	-rotation data
 unit AI
-18	attack unit general AI
 19	passive unit general AI
-20	pathfinding :((((
 	
 21autonomous ai
 	2 inputs for location

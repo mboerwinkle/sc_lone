@@ -8,7 +8,7 @@ int unitCount = 0;
 int unitCapacity = 0;
 Unit** unitList = NULL;
 Unit::Unit(char type, int team, int loc, char status){
-	this->type = type;//FIXME config files...
+	this->type = type;
 	this->team = teamVals[team];
 	this->loc = loc;
 	this->dest = loc;
@@ -110,8 +110,15 @@ void Unit::unBlockLocation(){
 			}
 		}
 }
+double Unit::toPosDist(int myLoc, int t){
+	double x = myLoc%mx+(size/2);
+	double y = myLoc/mx+(size/2);
+	double dx = t%mx-x;
+	double dy = t/mx-y;
+	return sqrt(dx*dx+dy*dy);
+}
 int Unit::pathFindDir(){
-	double bestFitness = distance(loc, dest);//replace with a function member of unit one argument loc that takes into account size//FIXME
+	double bestFitness = toPosDist(loc, dest);
 	int bestDir = -1;
 	for(int dir = 0; dir < 8; dir++){
 		double newFitness = dirFitness(dir);
@@ -144,7 +151,7 @@ double Unit::dirFitness(int dir){//lower is better.
 	if(!validLoc(x+y*mx)){
 		return -1;
 	}
-	return distance(dest, x+y*mx);
+	return toPosDist(x+y*mx, dest);
 }
 void Unit::move(int dir){
 //701
@@ -168,17 +175,17 @@ void Unit::move(int dir){
 	loc = x+y*mx;
 }
 
-int Unit::validLoc(int l){
+bool Unit::validLoc(int l){
 	int x = l%mx;
 	int y = l/mx;
 	for(int dx = x; dx < size+x; dx++){
 		for(int dy = y; dy < size+y; dy++){
 			if(bMap[dx+mx*dy]){
-				return 0;
+				return false;
 			}
 		}
 	}
-	return 1;
+	return true;
 }
 double Unit::unitDist(Unit* targ){
 	double x = loc%mx+(size/2);

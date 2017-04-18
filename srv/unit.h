@@ -13,22 +13,23 @@ public:
 	void attack(Unit* target);
 	void move(int dir);
 	int pathFindDir();
-	int validLoc(int l);//bool return FIXME
+	bool validLoc(int l);
 	double dirFitness(int dir);
 	double unitDist(Unit* targ);
+	double toPosDist(int myLoc, int t);
 	int actTimer = 3;//FIXME make actCooldown dependent on gcf of moveCooldown and attackCooldown
 	int actCooldown = 3;
-	char size = 1;//fixme store position as x and y for everything. only transmit loc
+	char size = 2;//fixme store position as x and y for everything. only transmit loc
 	int attackTimer = 12;
 	int attackCooldown = 12;
 	int damage = 10;
 	int range = 6;
 	int hp = 100;
 	int maxHp = 100;
-	int inCombat = 0;
-	int ignoreEnemies = 0;//for moving, etc
-//	int holdingPosition = 0;//FIXME implement.
-	int visionDist = 10;//FIXME make booleans booleans and not ints.
+	bool inCombat = 0;
+	bool ignoreEnemies = 0;//for moving, etc
+//	bool holdingPosition = 0;//FIXME implement.
+	int visionDist = 10;
 	int listIdx;
 	char type;
 	unsigned int team;

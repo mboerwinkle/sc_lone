@@ -132,8 +132,6 @@ int User::canSeeUnit(Unit* test){
 }
 void User::selAttackLoc(int tloc){
 	for(int uIdx = 0; uIdx < selectionCount; uIdx++){
-		//FIXME if owned by me.
 		selection[uIdx]->dest = tloc;
-//		selection[uIdx]->attack = 1;
 	}
 }
