@@ -3,19 +3,22 @@
 #include <string.h>
 #include <math.h>
 #include "unit.h"
+unsigned int teamVals[16] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 int unitCount = 0;
 int unitCapacity = 0;
 Unit** unitList = NULL;
-Unit::Unit(char type, char team, int loc, char status){
-	this->type = type;
-	this->team = team;
+Unit::Unit(char type, int team, int loc, char status){
+	this->type = type;//FIXME config files...
+	this->team = teamVals[team];
 	this->loc = loc;
 	this->dest = loc;
-	
 	this->status = status;
+	printf("team is %u\n", team);
+	this->attackMask = ~(this->team);
+	printf("attackMask is %u\n", attackMask);
 	if(unitCount == unitCapacity){
 		unitCapacity+=10;
-		printf("adding to unitCapacity %d\n", unitCapacity);
+		printf("adding to unitCapacity %u\n", unitCapacity);
 		unitList = (Unit**)realloc(unitList, sizeof(Unit*)*unitCapacity);
 	}
 	unitList[unitCount] = this;
@@ -25,13 +28,7 @@ Unit::Unit(char type, char team, int loc, char status){
 	act();
 }
 Unit::~Unit(){
-	int x = loc%mx;
-	int y = loc/mx;
-	for(int dx = x; dx < x+size; dx++){
-		for(int dy = y; dy < y+size; dy++){
-			bMap[dx+mx*dy] = 0;
-		}
-	}
+	unBlockLocation();
 	for(int uIdx = 0; uIdx < MAXUSERS; uIdx++){
 		if(userSelect[uIdx]){
 			userList[uIdx]->removeSelection(userSelIdx[uIdx]);
@@ -41,35 +38,80 @@ Unit::~Unit(){
 	unitCount--;
 	unitList[listIdx]->listIdx = listIdx;//set the moved in one's idx to its new idx;
 }
+void Unit::attack(Unit* targ){
+	if(attackTimer <= 0){
+		attackTimer = attackCooldown;
+		status = 1;
+		targ->status = 2;
+		targ->hp-=damage;
+		inCombat = 1;
+		targ->inCombat = 1;
+		if(!targ->ignoreEnemies){//And destination is not on a current other enemy that I can see (which would be one of "this"'s allies)
+			targ->dest = loc;
+		}
+	}
+}
 void Unit::act(){
-//remove yourself from the blocking map.
-	int x = loc%mx;
-	int y = loc/mx;
-	for(int dx = x; dx < x+size; dx++){
-		for(int dy = y; dy < y+size; dy++){
-			bMap[dx+mx*dy] = 0;
-		}
-	}
-//move in best direction
-	if(loc != dest){//we change dest to loc once we arrive close enough
-		move(pathFindDir());
-	}
-//re-add yourself to blocking map
-	x = loc%mx;
-	y = loc/mx;
-	for(int dx = x; dx < x+size; dx++){
-		for(int dy = y; dy < y+size; dy++){
-			bMap[dx+mx*dy] = 1;
-		}
-	}
-
-//attack if you can.
 //change dest if seeing enemy.
-//attacTimer decrement.
-//status change
+	inCombat = 0;
+	bool seenEnemy = false;
+	double enemyDist = 0;//FIXME make it be the distance between destination and each enemy. that way if destination is on an enemy it will attack that enemy.
+	Unit* enemy;
+	if(!ignoreEnemies){//CHOOSE ENEMY
+		for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){//FIXME optimize
+			Unit* targ = unitList[unitIdx];
+			if((attackMask & targ->team) == 0){
+				if(targ->inCombat == 1 && !ignoreEnemies){
+					dest = targ->loc;//move to an attacked friend unless you see an enemy.
+				}
+				continue;//is a friend
+			}
+			double dist = unitDist(targ);
+			if(dist > visionDist) continue;//cannot see it
+			if((dist > enemyDist) && seenEnemy) continue;//is not the best option
+			seenEnemy = true;
+			enemyDist = dist;
+			enemy = targ;//Finding enemy
+		}
+		if(seenEnemy) dest = enemy->loc;
+		if(attackTimer > 0){
+			attackTimer-=actCooldown;
+		}
+	}
+	status = 0;
+	if(seenEnemy && (enemyDist <= range)){
+		attack(enemy);
+	}else{//MOVE
+		unBlockLocation();
+		//move in best direction
+		if(loc != dest){
+			move(pathFindDir());
+		}
+		blockLocation();
+	}
+}
+void Unit::blockLocation(){
+		//re-add yourself to blocking map
+		int x = loc%mx;
+		int y = loc/mx;
+		for(int dx = x; dx < x+size; dx++){
+			for(int dy = y; dy < y+size; dy++){
+				bMap[dx+mx*dy] = 1;
+			}
+		}
+}
+void Unit::unBlockLocation(){
+		//remove yourself from the blocking map.
+		int x = loc%mx;
+		int y = loc/mx;
+		for(int dx = x; dx < x+size; dx++){
+			for(int dy = y; dy < y+size; dy++){
+				bMap[dx+mx*dy] = 0;
+			}
+		}
 }
 int Unit::pathFindDir(){
-	double bestFitness = distance(loc, dest);
+	double bestFitness = distance(loc, dest);//replace with a function member of unit one argument loc that takes into account size//FIXME
 	int bestDir = -1;
 	for(int dir = 0; dir < 8; dir++){
 		double newFitness = dirFitness(dir);
@@ -95,6 +137,9 @@ double Unit::dirFitness(int dir){//lower is better.
 	}
 	if(dir > 2 && dir < 6){
 		y++;
+	}
+	if(x < 0 || y < 0 || x >= mx || y >= my){
+		return -1;
 	}
 	if(!validLoc(x+y*mx)){
 		return -1;
@@ -135,7 +180,13 @@ int Unit::validLoc(int l){
 	}
 	return 1;
 }
-
+double Unit::unitDist(Unit* targ){
+	double x = loc%mx+(size/2);
+	double y = loc/mx+(size/2);
+	double dx = targ->loc%mx+(targ->size/2)-x;
+	double dy = targ->loc/mx+(targ->size/2)-y;
+	return sqrt(dx*dx+dy*dy);
+}
 double distance(int l1, int l2){
 	int x1 = l1%mx;
 	int y1 = l1/mx;

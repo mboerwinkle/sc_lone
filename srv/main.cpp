@@ -12,14 +12,22 @@ int main(){
 	
 	startNetListen();
 	loadMap(mapname);
-	new Unit('Z', 2, mx+3, 0);
-	new Unit('Z', 2, 5*mx+7, 0);
+	for(int x = 0; x < 10; x++) for(int y = 0; y < 10; y++){
+		new Unit('A', 1, x+mx*y, 0);
+		new Unit('Z', 2, 20+x+mx*(y+20), 0);
+	}
+
 	while(1){
 		delay(FRAMERATE);
 		//calculate new state
 		//FIXME only decrement top unit
 		for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){
 			Unit* targ = unitList[unitIdx];
+			if(targ->hp <= 0){
+				delete targ;
+				unitIdx--;
+				continue;
+			}
 			if(targ->actTimer <= 0){
 				targ->actTimer = targ->actCooldown;
 				targ->act();
