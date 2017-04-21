@@ -7,16 +7,25 @@ unsigned int teamVals[16] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 
 int unitCount = 0;
 int unitCapacity = 0;
 Unit** unitList = NULL;
-Unit::Unit(char type, int team, int loc, char status, int ownerIdx){
-	this->type = type;
+Unit::Unit(int typeIdx, int team, int loc, char status, int ownerIdx){
+	unitType* p = &(unitTypes[typeIdx]);
+	this->type = p->type;
 	this->team = teamVals[team];
 	this->loc = loc;
 	this->dest = loc;
 	this->status = status;
 	this->ownerIdx = ownerIdx;
-	printf("team is %u\n", team);
 	this->attackMask = ~(this->team);
-	printf("attackMask is %u\n", attackMask);
+	this->actCooldown = p->actCooldown;
+	this->actTimer = 0;
+	this->attackCooldown = p->attackCooldown;
+	this->attackTimer = 0;
+	this->damage = p->damage;
+	this->range = p->range;
+	this->maxHp = p->maxHp;
+	hp = maxHp;
+	this->visionDist = p->visionDist;
+	this->size = p->size;
 	if(unitCount == unitCapacity){
 		unitCapacity+=10;
 		printf("adding to unitCapacity %u\n", unitCapacity);
@@ -52,6 +61,9 @@ void Unit::attack(Unit* targ){
 		}
 	}
 }
+int Unit::centerLoc(){
+	return (loc%mx)+(size/2)+((loc/mx)+(size/2))*mx;
+}
 void Unit::act(){
 //change dest if seeing enemy.
 	inCombat = 0;
@@ -63,7 +75,7 @@ void Unit::act(){
 			Unit* targ = unitList[unitIdx];
 			if((attackMask & targ->team) == 0){
 				if(targ->inCombat == 1 && !ignoreEnemies){
-					dest = targ->loc;//move to an attacked friend unless you see an enemy.
+					dest = targ->centerLoc();//move to an attacked friend unless you see an enemy.
 				}
 				continue;//is a friend
 			}
@@ -193,7 +205,7 @@ double Unit::unitDist(Unit* targ){
 	double y = loc/mx+(size/2);
 	double dx = targ->loc%mx+(targ->size/2)-x;
 	double dy = targ->loc/mx+(targ->size/2)-y;
-	return sqrt(dx*dx+dy*dy);
+	return sqrt(dx*dx+dy*dy)-sqrt(size+targ->size*size+targ->size*2);//FIXME optimize
 }
 double distance(int l1, int l2){
 	int x1 = l1%mx;

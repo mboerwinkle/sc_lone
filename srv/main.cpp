@@ -9,12 +9,14 @@ extern void startNetListen();
 
 char mapname[80] = "../dat/testMap.map";
 int main(){
-	
+	loadUnitTypes();
+	//loadMaps();
 	startNetListen();
 	loadMap(mapname);
 	for(int x = 0; x < 10; x+=2) for(int y = 0; y < 10; y+=2){
-		new Unit('A', 1, x+mx*y, 0, 0);
-		new Unit('Z', 2, 20+x+mx*(y+20), 0, 1);
+		new Unit(0, 1, x+mx*y, 0, 0);
+		new Unit(1, 2, x+mx*(y+30), 0, 0);
+		new Unit(2, 3, x+30+mx*(y+10), 0, 0);
 	}
 
 	while(1){

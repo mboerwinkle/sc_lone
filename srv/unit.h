@@ -2,14 +2,29 @@
 #define UNIT_H
 #include "netDef.h"
 #include "map.h"
+typedef struct unitType{
+	char name[80];
+	char type;
+	int actCooldown;
+	int attackCooldown;
+	int damage;
+	int range;
+	int maxHp;
+	int visionDist;
+	int size;
+}unitType;
+extern unitType* unitTypes;
+extern int unitTypeCount;
+extern void loadUnitTypes();
 extern unsigned int teamVals[16];
 class Unit{
 public:
-	Unit(char type, int team, int loc, char status, int ownerIdx);
+	Unit(int typeIdx, int team, int loc, char status, int ownerIdx);
 	~Unit();
 	void act();
 	void blockLocation();
 	void unBlockLocation();
+	int centerLoc();//FIXME should be used more
 	void attack(Unit* target);
 	void move(int dir);
 	int pathFindDir();
@@ -17,19 +32,19 @@ public:
 	double dirFitness(int dir);
 	double unitDist(Unit* targ);
 	double toPosDist(int myLoc, int t);
-	int actTimer = 3;//FIXME make actCooldown dependent on gcf of moveCooldown and attackCooldown
-	int actCooldown = 3;
-	char size = 2;//fixme store position as x and y for everything. only transmit loc
-	int attackTimer = 12;
-	int attackCooldown = 12;
-	int damage = 10;
-	int range = 6;
-	int hp = 100;
-	int maxHp = 100;
+	int actTimer;//FIXME make actCooldown dependent on gcf of moveCooldown and attackCooldown
+	int actCooldown;
+	char size;//fixme store position as x and y for everything. only transmit loc
+	int attackTimer;
+	int attackCooldown;
+	int damage;
+	int range;
+	int hp;
+	int maxHp;
 	bool inCombat = 0;
 	bool ignoreEnemies = 0;//for moving, etc
 //	bool holdingPosition = 0;//FIXME implement.
-	int visionDist = 10;
+	int visionDist;
 	int listIdx;
 	char type;
 	unsigned int team;
