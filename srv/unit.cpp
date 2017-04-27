@@ -73,15 +73,15 @@ void Unit::act(){
 	if(!ignoreEnemies){//CHOOSE ENEMY
 		for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){//FIXME optimize
 			Unit* targ = unitList[unitIdx];
+			double dist = unitDist(targ);
+			if(!canSee(targ->loc+(targ->size/2))) continue;//FIXME refactor//cannot see it
+			if((dist > enemyDist) && seenEnemy) continue;//is not the best option
 			if((attackMask & targ->team) == 0){
 				if(targ->inCombat == 1 && !ignoreEnemies){
 					dest = targ->centerLoc();//move to an attacked friend unless you see an enemy.
 				}
 				continue;//is a friend
 			}
-			double dist = unitDist(targ);
-			if(dist > visionDist) continue;//cannot see it
-			if((dist > enemyDist) && seenEnemy) continue;//is not the best option
 			seenEnemy = true;
 			enemyDist = dist;
 			enemy = targ;//Finding enemy
@@ -103,13 +103,18 @@ void Unit::act(){
 		blockLocation();
 	}
 }
+bool Unit::canSee(int l){
+	if(toPosDist(loc, l) > range) return false;
+	if(visBlock(l, loc)) return false;
+	return true;
+}
 void Unit::blockLocation(){
 		//re-add yourself to blocking map
 		int x = loc%mx;
 		int y = loc/mx;
 		for(int dx = x; dx < x+size; dx++){
 			for(int dy = y; dy < y+size; dy++){
-				bMap[dx+mx*dy] = 1;
+				bMap[dx+mx*dy] = listIdx+1;
 			}
 		}
 }
@@ -213,4 +218,66 @@ double distance(int l1, int l2){
 	int dx = l2%mx-x1;
 	int dy = l2/mx-y1;
 	return sqrt(dx*dx+dy*dy);
+}
+bool visBlock(int l1, int l2){
+	int x1 = l1%mx;
+	int y1 = l1/mx;
+	int x2 = l2%mx;
+	int y2 = l2/mx;
+		if(abs(x2-x1) < abs(y2-y1)){//rotate plane
+		int temp = x1;
+		x1 = -y1;
+		y1 = temp;
+		
+		temp = x2;
+		x2 = -y2;
+		y2 = temp;
+
+		if(x1 > x2){//line is going backwards; switch points
+			temp = x1;
+			x1 = x2;
+			x2 = temp;
+			temp = y1;
+			y1 = y2;
+			y2 = temp;
+		}
+		double slope = (double)(y2-y1)/(double)(x2-x1);
+		int sign = 1;
+		if(slope < 0){
+			sign = -1;
+		}
+		double err = 0;
+		for(;x1 <= x2; x1++){
+			if(bMap[y1-x1*mx] == -1) return true;
+			err+=slope;
+			if(abs(err)>=1){
+				y1+=sign;
+				err-=sign;
+			}
+		}
+	}else{
+		if(x1 > x2){//line is going backwards; switch points
+			int temp = x1;
+			x1 = x2;
+			x2 = temp;
+			temp = y1;
+			y1 = y2;
+			y2 = temp;
+		}
+		double slope = (double)(y2-y1)/(double)(x2-x1);
+		int sign = 1;
+		if(slope < 0){
+			sign = -1;
+		}
+		double err = 0;
+		for(;x1 <= x2; x1++){
+			if(bMap[x1+y1*mx] == -1) return true;
+			err+=slope;
+			if(abs(err)>=1){
+				y1+=sign;
+				err-=sign;
+			}
+		}
+	}
+	return false;
 }

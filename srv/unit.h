@@ -28,6 +28,7 @@ public:
 	void attack(Unit* target);
 	void move(int dir);
 	int pathFindDir();
+	bool canSee(int l);
 	bool validLoc(int l);
 	double dirFitness(int dir);
 	double unitDist(Unit* targ);

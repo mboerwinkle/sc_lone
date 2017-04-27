@@ -9,7 +9,6 @@ general client
 
 
 	-pathfinding node gen on map--save units as connected to map nodes???
-	-make walls. 2
 	-refine map list thing 2.5
 	-variable height
 	-wall/height visibility rules 4
@@ -20,7 +19,6 @@ general client
 9map select server mode(through texting?)
 server
 	-actually set up server notifications
-	-unit config files 2
 	-fix fixme's
 	-selection status at sidebar
 10	-minerals 7
