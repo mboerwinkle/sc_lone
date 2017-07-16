@@ -4,7 +4,7 @@
 #include <ncurses.h>
 #include "map.h"
 #include "notifications.h"
-int vx = 20, vy = 20;
+int vx = 40, vy = 40;
 int locx = 0, locy = 0;
 void getCoords(int loc, int* x, int* y);
 void displayMap(char* data){
@@ -40,7 +40,7 @@ void displayMap(char* data){
 			}
 		}
 	}
-	mvprintw(0, 26, "Selected: %d", selectionCount);
+	mvprintw(0, 42, "Selected: %d", selectionCount);
 }
 void getCoords(int loc, int* x, int* y){
 	*x = loc%mx;

@@ -12,7 +12,7 @@ int main(){
 	loadUnitTypes();
 	startNetListen();
 	loadMap(mapname);//FIXME map selection done on the server...Ncurses
-	for(int x = 1; x < 10; x+=3) for(int y = 1; y < 10; y+=3){
+	for(int x = 1; x < 10; x+=1) for(int y = 1; y < 10; y+=1){
 		new Unit(0, 1, x+mx*y, 0, 0);
 		new Unit(1, 2, x+mx*(y+30), 0, 0);
 		new Unit(2, 3, x+30+mx*(y+10), 0, 0);
@@ -29,6 +29,7 @@ int main(){
 				unitIdx--;
 				continue;
 			}
+			if(targ->inCombat > 0) targ->inCombat--;
 			if(targ->actTimer <= 0){
 				targ->actTimer = targ->actCooldown;
 				targ->act();

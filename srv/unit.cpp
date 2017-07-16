@@ -35,9 +35,11 @@ Unit::Unit(int typeIdx, int team, int loc, char status, int ownerIdx){
 	listIdx = unitCount;
 	unitCount++;
 	memset(userSelect, 0, MAXUSERS);
+	reserveIMap();
 	act();
 }
 Unit::~Unit(){
+	freeIMap();
 	for(int uIdx = 0; uIdx < MAXUSERS; uIdx++){
 		if(userSelect[uIdx]){
 			userList[uIdx]->removeSelection(userSelIdx[uIdx]);
@@ -53,58 +55,86 @@ void Unit::attack(Unit* targ){
 		status = 1;
 		targ->status = 2;
 		targ->hp-=damage;
-		inCombat = 1;
-		targ->inCombat = 1;
-		if(!targ->ignoreEnemies){//And destination is not on a current other enemy that I can see (which would be one of "this"'s allies)
-			targ->dest = loc;
-		}
+		if(inCombat < attackCooldown+1) inCombat = attackCooldown+1;
+		if(targ->inCombat < attackCooldown+1) targ->inCombat = attackCooldown+1;
 	}
 }
 void Unit::act(){
-//change dest if seeing enemy.
 	if(attackTimer > 0){
 		attackTimer-=actCooldown;
 	}
-	inCombat = 0;
-	bool seenEnemy = false;
-	double enemyDist = 0;//FIXME make it be the distance between destination and each enemy. that way if destination is on an enemy it will attack that enemy.
+	status = 0;
+	int bestDist;
 	Unit* enemy;
+	bool seenEnemy = false;
 	if(!ignoreEnemies){//CHOOSE ENEMY
+		int priority = 0;//at level 0 any event takes priority
 		for(int unitIdx = 0; unitIdx < unitCount; unitIdx++){//FIXME optimize
 			Unit* targ = unitList[unitIdx];
-			double dist = unitDist(targ);
-			if(!canSee(targ->loc)) continue;//FIXME refactor//cannot see it
-			if((dist > enemyDist) && seenEnemy) continue;//is not the best option
-			if((attackMask & targ->team) == 0){
-				if(targ->inCombat == 1 && !ignoreEnemies){
-					dest = targ->loc;//FIXME should it be targ->dest???//move to an attacked friend unless you see an enemy.
+			int dist = unitDist(targ);
+			if(!canSee(targ->loc)) continue;//cannot see it
+			if(attackMask & targ->team){//if its an enemy
+				if(priority < 2){
+					priority = 2;
+					bestDist = dist;
+					seenEnemy = true;
+					dest = targ->loc;
+					enemy = targ;
+				}else if(dist < bestDist){
+					bestDist = dist;
+					dest = targ->loc;
+					enemy = targ;
+				}	
+			}else if((team ^ targ->team)== 0 && targ->inCombat){//if its your team//Note is not a simple else bc we dont want to do anything if its just a neutral
+				if(priority > 1) continue;
+				if(priority < 1){
+					priority = 1;
+					bestDist = dist;
+					dest = targ->loc;
+				}else if(dist < bestDist){ 
+					bestDist = dist;
+					dest = targ->loc;
 				}
-				continue;//is a friend
 			}
-			seenEnemy = true;
-			enemyDist = dist;
-			enemy = targ;//Finding enemy
 		}
-		if(seenEnemy) dest = enemy->loc;
 	}
-	status = 0;
-	if(seenEnemy && (enemyDist <= range)){
+	if(seenEnemy &&  range >= bestDist){
 		attack(enemy);
 	}else{//MOVE
 		//move in best direction
 		if(loc != dest){
+			freeIMap();//FIXME should be more dynamic to save memory time
 			move(pathFindDir());
+			reserveIMap();
+		}
+	}
+}
+void Unit::reserveIMap(){
+	int x = loc%mx;
+	int y = loc/mx;
+	for(int dy = y-radius; dy <= y+radius; dy++){
+		for(int dx = x-radius; dx <= x+radius; dx++){
+			iMap[dx+dy*mx] = 1;
+		}
+	}
+}
+void Unit::freeIMap(){
+	int x = loc%mx;
+	int y = loc/mx;
+	for(int dy = y-radius; dy <= y+radius; dy++){
+		for(int dx = x-radius; dx <= x+radius; dx++){
+			iMap[dx+dy*mx] = 0;
 		}
 	}
 }
 bool Unit::canSee(int l){
-	if(toPosDist(loc, l) > range) return false;
+	if(toPosDist(l) > visionDist) return false;
 	if(visBlock(l, loc)) return false;
 	return true;
 }
-double Unit::toPosDist(int myLoc, int t){
-	int x = myLoc%mx;//FIXME contract
-	int y = myLoc/mx;
+int Unit::toPosDist(int t){
+	int x = loc%mx;//FIXME contract
+	int y = loc/mx;
 	int dx = abs(t%mx-x);
 	int dy = abs(t/mx-y);
 	if(dx > dy) return dx;
@@ -174,17 +204,16 @@ bool Unit::validLoc(int l){
 	int y = l/mx;
 	for(int dx = x-radius; dx <= x+radius; dx++){
 		for(int dy = y-radius; dy <= y+radius; dy++){
-			//FIXME get list of units near
-			//see if intersects.
+			if(hMap[dx+dy*mx] != 0 || iMap[dx+dy*mx] != 0) return false;
 		}
 	}
 	return true;
 }
-double Unit::unitDist(Unit* targ){
+int Unit::unitDist(Unit* targ){
 	int x = loc%mx;
 	int y = loc/mx;
-	int dx = abs(targ->loc%mx-x)-targ->radius;
-	int dy = abs(targ->loc/mx-y)-targ->radius;
+	int dx = abs(targ->loc%mx-x)-targ->radius-radius;
+	int dy = abs(targ->loc/mx-y)-targ->radius-radius;
 	if(dx < 0 && dy < 0) return 0;//return 0 for overlapping flying units
 	if(dx > dy) return dx;
 	return dy;
@@ -225,7 +254,7 @@ bool visBlock(int l1, int l2){
 		}
 		double err = 0;
 		for(;x1 <= x2; x1++){
-		//FIXME only based on height map	if(bMap[y1-x1*mx] == -1) return true;
+		if(hMap[y1-x1*mx] == 1) return true;
 			err+=slope;
 			if(abs(err)>=1){
 				y1+=sign;
@@ -248,7 +277,7 @@ bool visBlock(int l1, int l2){
 		}
 		double err = 0;
 		for(;x1 <= x2; x1++){
-		//	if(bMap[x1+y1*mx] == -1) return true;
+			if(hMap[x1+y1*mx] == 1) return true;
 			err+=slope;
 			if(abs(err)>=1){
 				y1+=sign;

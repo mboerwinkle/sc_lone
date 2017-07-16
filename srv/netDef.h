@@ -17,7 +17,7 @@ public:
 	User(unsigned long ip);
 	struct sockaddr_in addr;
 	int loc = 0;
-	int vx = 20, vy = 20;
+	int vx = 40, vy = 40;
 	int listIdx;//FIXME go back and check for dupes.
 	void sendUserData();
 	void sendMapName();

@@ -13,6 +13,6 @@ z
 #maxHp
 75
 #visionDist
-5
+8
 #size
 0

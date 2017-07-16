@@ -28,8 +28,10 @@ public:
 	bool canSee(int l);
 	bool validLoc(int l);
 	double dirFitness(int dir);
-	double unitDist(Unit* targ);
-	double toPosDist(int myLoc, int t);
+	int unitDist(Unit* targ);
+	int toPosDist(int t);
+	void freeIMap();
+	void reserveIMap();
 	int actTimer;//FIXME make actCooldown dependent on gcf of moveCooldown and attackCooldown
 	int actCooldown;
 	char radius;//fixme store position as x and y for everything. only transmit loc
@@ -39,7 +41,7 @@ public:
 	int range;
 	int hp;
 	int maxHp;
-	bool inCombat = 0;
+	int inCombat = 0;
 	bool ignoreEnemies = 0;//for moving, etc
 //	bool holdingPosition = 0;//FIXME implement.
 	int visionDist;
