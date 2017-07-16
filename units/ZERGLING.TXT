@@ -15,4 +15,4 @@ z
 #visionDist
 5
 #size
-1
+0

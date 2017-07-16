@@ -15,4 +15,4 @@ M
 #visionDist
 10
 #size
-2
+1

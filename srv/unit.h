@@ -11,7 +11,7 @@ typedef struct unitType{
 	int range;
 	int maxHp;
 	int visionDist;
-	int size;
+	int radius;
 }unitType;
 extern unitType* unitTypes;
 extern int unitTypeCount;
@@ -22,9 +22,6 @@ public:
 	Unit(int typeIdx, int team, int loc, char status, int ownerIdx);
 	~Unit();
 	void act();
-	void blockLocation();
-	void unBlockLocation();
-	int centerLoc();//FIXME should be used more
 	void attack(Unit* target);
 	void move(int dir);
 	int pathFindDir();
@@ -35,7 +32,7 @@ public:
 	double toPosDist(int myLoc, int t);
 	int actTimer;//FIXME make actCooldown dependent on gcf of moveCooldown and attackCooldown
 	int actCooldown;
-	char size;//fixme store position as x and y for everything. only transmit loc
+	char radius;//fixme store position as x and y for everything. only transmit loc
 	int attackTimer;
 	int attackCooldown;
 	int damage;

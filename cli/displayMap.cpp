@@ -34,13 +34,13 @@ void displayMap(char* data){
 		char usel = *(data+pos);pos++;
 		char ustat = *(data+pos);pos++;
 		char usize = *(data+pos);pos++;
-		for(int dx = ulocx; dx < ulocx+usize; dx++){
-			for(int dy = ulocy; dy < ulocy+usize; dy++){
+		for(int dx = ulocx-usize; dx <= ulocx+usize && dx < vx; dx++){
+			for(int dy = ulocy-usize; dy <= ulocy+usize && dy < vy; dy++){
 				mvaddch(dy, dx, utype|COLOR_PAIR(uteam)|(A_STANDOUT*usel)|(A_BOLD*ustat));
 			}
 		}
 	}
-	mvprintw(0, 21, "Selected: %d", selectionCount);
+	mvprintw(0, 26, "Selected: %d", selectionCount);
 }
 void getCoords(int loc, int* x, int* y){
 	*x = loc%mx;

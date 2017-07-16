@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "unit.h"
+//FIXME this whole file needs to be cleaned
 unitType* unitTypes;
 int unitTypeCount;
 void loadUnit(FILE* unitFile, unitType* dest);
@@ -49,5 +50,5 @@ void loadUnit(FILE* unitFile, unitType* dest){
 	getNextData(unitFile, line);//
 	dest->visionDist = atoi(line);
 	getNextData(unitFile, line);//
-	dest->size = atoi(line);	
+	dest->radius = atoi(line);	
 }

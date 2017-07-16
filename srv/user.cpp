@@ -65,7 +65,7 @@ void User::sendUserData(){
 			*(int*)(data+datalen) = targ->loc;datalen+=sizeof(int);
 			*(data+datalen) = targ->userSelect[listIdx];datalen++;
 			*(data+datalen) = targ->status;datalen++;
-			*(data+datalen) = targ->size;datalen++;
+			*(data+datalen) = targ->radius;datalen++;
 		}
 	}
 	strcpy(data+datalen, "END"); datalen+=3;
@@ -98,12 +98,13 @@ void User::select(int c1, int c2){//FIXME third argument for clearing selection 
 	int y1 = c1/mx;
 	int x2 = c2%mx;
 	int y2 = c2/mx;
-	for(int idx = 0; idx < unitCount; idx++){
+	for(int idx = 0; idx < unitCount; idx++){//FIXME node stuff
 		Unit* test = unitList[idx];
+		int rad = test->radius;
 		int tloc = test->loc;
 		int tx = tloc%mx;//FIXME dont remake int?
 		int ty = tloc/mx;//FIXME change all occurences to a macro? function?
-		if(((x1 < tx+test->size && x2 >= tx) || (x1 >= tx && x2 < tx+test->size)) && ((y1 < ty+test->size && y2 >= ty) || (y1 >= ty && y2 < ty+test->size))){
+		if(((x1 <= tx+rad && x2 >= tx-rad) || (x1 >= tx-rad && x2 <= tx+rad)) && ((y1 <= ty+rad && y2 >= ty-rad) || (y1 >= ty-rad && y2 <= ty+rad))){
 			selectUnit(idx);
 		}
 	}
@@ -124,7 +125,8 @@ int User::canSeeUnit(Unit* test){
 	getCamCoord(&myX, &myY);
 	int x = test->loc%mx;
 	int y = test->loc/mx;
-	if(x+test->size > myX && x < myX+vx && y+test->size > myY && y < myY+vy){
+	int rad = test->radius;
+	if(x+rad >= myX && x-rad < myX+vx && y+rad >= myY && y-rad < myY+vy){
 		return 1;
 	}
 	return 0;

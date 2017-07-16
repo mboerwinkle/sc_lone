@@ -15,4 +15,4 @@ Z
 #visionDist
 12
 #size
-2
+1
